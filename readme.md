@@ -100,5 +100,4 @@
 
 歡迎對 C++ 有興趣的朋友透過以下方式與我交流！
 
-* **Email**: `[你的Email]`
-* **LinkedIn**: `[你的LinkedIn個人檔案連結]` (如果有的話)
+* **Email**: `[yoihong0830@gmail.com]`
