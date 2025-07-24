@@ -34,9 +34,7 @@ int main() {
 
 /*
 程式碼解說
-#include <cctype>
-
-這是 C++ 中專門用來處理「字元類型 (character type)」的標準函式庫。引入它之後，我們就可以使用一系列方便的函式來檢查字元的屬性。
+#include <cctype>用來檢查字元的屬性。
 
 islower(char)
 

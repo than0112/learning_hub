@@ -41,11 +41,9 @@ int main() {
         cout << "nine" << endl;
     }
     else {
-        // If n is not any of the numbers from 1 to 9,
-        // it must be greater than 9 according to the problem description.
+       
         cout << "Greater than 9" << endl;
     }
 
-    // Indicate that the program finished successfully.
     return 0;
 }

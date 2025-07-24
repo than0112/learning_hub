@@ -4,6 +4,7 @@
 #include <cmath> // 引入 cmath 以使用數學函數
 using namespace std;
 int main() {
+    const double PI = 3.14159; // 定義圓周率常數
     double radius;
     cout << "請輸入圓的半徑: ";
     cin >> radius;
@@ -18,4 +19,3 @@ int main() {
 
     return 0;
 }
-const double PI = 3.14159; // 定義圓周率常數

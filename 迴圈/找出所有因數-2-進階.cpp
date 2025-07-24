@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <cmath>     // 為了使用 sqrt() 函式
-#include <algorithm> // 為了使用 sort() 函式
+#include <cmath>     // 使用 sqrt() 函式
+#include <algorithm> // 使用 sort() 函式
 
 using namespace std;
 
@@ -36,7 +36,7 @@ int main() {
             }
         }
 
-        // 因為我們是成對找的，順序會亂掉，所以需要排序
+        // 成對找的，順序會亂掉，所以需要排序
         sort(factors.begin(), factors.end());
 
         // 輸出結果

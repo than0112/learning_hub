@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cmath> // 為了使用 abs() 函式來取絕對值
+#include <cmath> // 使用 abs() 函式來取絕對值
 
 using namespace std;
 
@@ -8,7 +8,7 @@ int main() {
     cout << "請輸入一個六位數：";
     cin >> number;
 
-    // --- 輸入驗證 (可選，但建議加入) ---
+    
     if (number < 100000 || number > 999999) {
         cout << "錯誤：請輸入有效的六位數。" << endl;
         return 1; // 結束程式

@@ -40,7 +40,7 @@ int main() {
 
 int original_a = *a;
 
-我們宣告一個暫存變數 original_a 來儲存指標 a 所指向的原始值（也就是 main 函式裡的 a）。
+宣告一個暫存變數 original_a 來儲存指標 a 所指向的原始值（也就是 main 函式裡的 a）。
 
 這是最重要的一步。因為如果我們直接執行 *a = *a + *b;，那麼 main 函式裡 a 的原始值就會遺失，導致接下來計算差值時出錯。
 
@@ -52,7 +52,7 @@ int original_a = *a;
 
 *b = abs(original_a - *b);
 
-這裡我們使用暫存的 original_a 和尚未被修改的 *b 來計算差值。
+這裡使用暫存的 original_a 和尚未被修改的 *b 來計算差值。
 
 abs() 函式（來自 <cmath> 標頭檔）會取計算結果的絕對值。
 
