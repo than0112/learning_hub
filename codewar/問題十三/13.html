@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陣列平衡點 動畫模擬器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #111827; /* 深藍灰背景 */
+        }
+        .number-cell {
+            width: 60px;
+            height: 60px;
+            transition: all 0.3s ease-in-out;
+            position: relative;
+        }
+        .number-cell .index {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .left-side { background-color: #1d4ed8; border-color: #3b82f6; }
+        .right-side { background-color: #047857; border-color: #10b981; }
+        .pivot { background-color: #ca8a04; border-color: #facc15; transform: scale(1.1); }
+        .found { background-color: #65a30d; border-color: #84cc16; transform: scale(1.2); animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(132, 204, 22, 0); }
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">陣列平衡點</h1>
+            <p class="text-gray-400">動畫模擬器</p>
+        </header>
+
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+            <!-- 控制面板 -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+                <button id="generate-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg w-full sm:w-auto transition-all">產生新陣列</button>
+                <button id="find-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg w-full sm:w-auto transition-all">尋找平衡點</button>
+            </div>
+
+            <!-- 陣列顯示區域 -->
+            <div id="array-container" class="flex justify-center items-center gap-2 my-8 min-h-[60px]">
+                <!-- 數字方塊將會動態生成於此 -->
+            </div>
+            
+            <!-- 總和顯示區域 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="bg-blue-900/50 p-4 rounded-lg">
+                    <h3 class="text-sm font-semibold text-blue-400">左側總和</h3>
+                    <p id="left-sum" class="text-3xl font-bold">0</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg">
+                    <h3 class="text-sm font-semibold text-yellow-400">最終結果</h3>
+                    <p id="result" class="text-3xl font-bold">-</p>
+                </div>
+                <div class="bg-emerald-900/50 p-4 rounded-lg">
+                    <h3 class="text-sm font-semibold text-emerald-400">右側總和</h3>
+                    <p id="right-sum" class="text-3xl font-bold">0</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-gray-600 text-sm mt-8">
+            <p>由 Gemini 驅動的 C++ 專家</p>
+        </footer>
+    </div>
+
+    <script>
+        const arrayContainer = document.getElementById('array-container');
+        const generateBtn = document.getElementById('generate-btn');
+        const findBtn = document.getElementById('find-btn');
+        const leftSumEl = document.getElementById('left-sum');
+        const rightSumEl = document.getElementById('right-sum');
+        const resultEl = document.getElementById('result');
+
+        let data = [];
+
+        // 產生並渲染陣列
+        function generateArray() {
+            data = [];
+            const arraySize = Math.floor(Math.random() * 6) + 5; // 5到10個元素
+            for (let i = 0; i < arraySize; i++) {
+                data.push(Math.floor(Math.random() * 41) - 20); // -20 到 20 的數字
+            }
+            
+            // 偶爾插入一個已知的解
+            if (Math.random() > 0.5) {
+                // *** FIX: Changed the data structure to an array of arrays ***
+                const predefinedSolutions = [
+                    [1, 100, 50, -51, 1, 1],
+                    [1, 2, 3, 4, 3, 2, 1],
+                    [20, 10, -80, 10, 10, 15, 35]
+                ];
+                // *** FIX: Randomly select an array from the predefined solutions ***
+                data = predefinedSolutions[Math.floor(Math.random() * predefinedSolutions.length)];
+            }
+
+            renderArray();
+            findBtn.disabled = false;
+            resultEl.textContent = '-';
+            leftSumEl.textContent = '0';
+            rightSumEl.textContent = '0';
+        }
+
+        // 渲染數字方塊
+        function renderArray(highlights = {}) {
+            arrayContainer.innerHTML = '';
+            data.forEach((value, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'number-cell border-2 border-gray-600 bg-gray-700 rounded-lg flex items-center justify-center font-bold text-xl';
+                cell.textContent = value;
+                
+                const indexSpan = document.createElement('span');
+                indexSpan.className = 'index';
+                indexSpan.textContent = index;
+                cell.appendChild(indexSpan);
+
+                if (highlights.pivot === index) cell.classList.add('pivot');
+                if (highlights.found === index) cell.classList.add('found');
+                if (highlights.left && index < highlights.pivot) cell.classList.add('left-side');
+                if (highlights.right && index > highlights.pivot) cell.classList.add('right-side');
+
+                arrayContainer.appendChild(cell);
+            });
+        }
+
+        // 延遲函式
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 尋找平衡點並執行動畫
+        async function findAndAnimate() {
+            generateBtn.disabled = true;
+            findBtn.disabled = true;
+            resultEl.textContent = '尋找中...';
+
+            const totalSum = data.reduce((sum, val) => sum + val, 0);
+            let leftSum = 0;
+
+            for (let i = 0; i < data.length; i++) {
+                const rightSum = totalSum - leftSum - data[i];
+                
+                // 更新畫面
+                renderArray({ pivot: i, left: true, right: true });
+                leftSumEl.textContent = leftSum;
+                rightSumEl.textContent = rightSum;
+                await sleep(1500);
+
+                if (leftSum === rightSum) {
+                    renderArray({ found: i });
+                    resultEl.textContent = `索引 ${i}`;
+                    generateBtn.disabled = false;
+                    findBtn.disabled = false;
+                    return;
+                }
+
+                leftSum += data[i];
+            }
+            
+            renderArray();
+            resultEl.textContent = '-1';
+            generateBtn.disabled = false;
+            findBtn.disabled = false;
+        }
+
+        generateBtn.addEventListener('click', generateArray);
+        findBtn.addEventListener('click', findAndAnimate);
+
+        // 初始載入
+        window.onload = generateArray;
+    </script>
+</body>
+</html>

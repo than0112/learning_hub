@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最小兩數之和 互動模擬器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(to bottom right, #3b82f6, #1e40af);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .result-card {
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        .result-card.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .number-tag {
+            transition: all 0.3s ease;
+        }
+        .number-tag.highlight {
+            background-color: #f59e0b; /* Amber 500 */
+            color: #1e3a8a; /* Indigo 900 */
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg mx-auto">
+        <div class="card rounded-2xl p-8 shadow-2xl">
+            <header class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-sky-200 mb-2">最小兩數之和</h1>
+                <p class="text-sky-300">互動模擬器</p>
+            </header>
+
+            <div>
+                <label for="numberInput" class="block text-sm font-medium text-sky-200 mb-2">請輸入用空格或逗號分隔的數字</label>
+                <textarea id="numberInput" rows="3" class="w-full bg-blue-900/50 border border-sky-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-400 transition" placeholder="例如: 19 5 42 2 77"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <button id="generateBtn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
+                    自動產生數字
+                </button>
+                <button id="calculateBtn" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
+                    計算總和
+                </button>
+            </div>
+
+            <div id="resultContainer" class="mt-8 space-y-4 result-card">
+                <div>
+                    <h3 class="text-sm font-semibold text-sky-300 mb-2">排序後的陣列</h3>
+                    <div id="sortedArray" class="flex flex-wrap gap-2 p-3 bg-blue-900/30 rounded-lg min-h-[40px]"></div>
+                </div>
+                <div class="text-center pt-4">
+                    <p class="text-lg text-sky-200">最小的兩個數字是 <span id="smallestNumbers" class="font-bold text-amber-400"></span></p>
+                    <p class="text-4xl font-bold mt-2"><span id="finalSum" class="text-white"></span></p>
+                </div>
+            </div>
+        </div>
+        <footer class="text-center text-sky-900 text-xs mt-6 font-semibold">
+            <p>由 Gemini 驅動的 C++ 專家</p>
+        </footer>
+    </div>
+
+    <script>
+        const numberInput = document.getElementById('numberInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const sortedArrayEl = document.getElementById('sortedArray');
+        const smallestNumbersEl = document.getElementById('smallestNumbers');
+        const finalSumEl = document.getElementById('finalSum');
+
+        generateBtn.addEventListener('click', () => {
+            const numCount = Math.floor(Math.random() * 7) + 4; // 產生 4 到 10 個數字
+            const randomNumbers = [];
+            for (let i = 0; i < numCount; i++) {
+                randomNumbers.push(Math.floor(Math.random() * 100) + 1); // 產生 1 到 100 的數字
+            }
+            numberInput.value = randomNumbers.join(' '); // 將產生的數字填入輸入框
+            resultContainer.classList.remove('show'); // 隱藏舊的結果
+        });
+
+        calculateBtn.addEventListener('click', () => {
+            const inputText = numberInput.value;
+            if (!inputText.trim()) {
+                alert('請輸入數字！');
+                return;
+            }
+
+            // 解析輸入的字串為數字陣列
+            const numbers = inputText
+                .trim()
+                .split(/[\s,]+/) // 用空白或逗號分隔
+                .filter(n => n !== '') // 過濾掉空字串
+                .map(Number) // 將字串轉為數字
+                .filter(n => !isNaN(n)); // 只保留有效的數字
+
+            if (numbers.length < 2) {
+                alert('請至少輸入兩個有效的數字！');
+                return;
+            }
+
+            // 對陣列進行排序
+            numbers.sort((a, b) => a - b);
+
+            const min1 = numbers[0];
+            const min2 = numbers[1];
+            const sum = min1 + min2;
+
+            // 顯示結果
+            displayResults(numbers, min1, min2, sum);
+        });
+
+        function displayResults(sorted, n1, n2, sum) {
+            sortedArrayEl.innerHTML = '';
+            sorted.forEach((num, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'number-tag bg-sky-800 text-sky-200 font-mono py-1 px-3 rounded-md';
+                tag.textContent = num;
+                if (index === 0 || index === 1) {
+                    // 延遲高亮，製造動畫效果
+                    setTimeout(() => {
+                        tag.classList.add('highlight');
+                    }, 100 * (index + 1));
+                }
+                sortedArrayEl.appendChild(tag);
+            });
+
+            smallestNumbersEl.textContent = `${n1} 和 ${n2}`;
+            finalSumEl.textContent = `總和為 ${sum}`;
+            resultContainer.classList.add('show');
+        }
+    </script>
+</body>
+</html>
